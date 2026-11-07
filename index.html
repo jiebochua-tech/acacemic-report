@@ -38,40 +38,77 @@
         </div>
     </div>
 
-    <!-- Global Settings Modal -->
+    <!-- Global Settings Modal (包含账户管理与下拉权重设置) -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    全局默认设置
+                    系统设置与账号同步
                 </h3>
                 <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
-            <form id="settings-form" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">系统默认得分权重占比 (%)</label>
-                    <p class="text-xs text-slate-400 mb-2">修改后新建的学科将默认采用此权重设置。</p>
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <span class="text-[11px] text-slate-500">课业占比%</span>
-                            <input type="number" id="global-w-cw" min="0" max="100" required class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500">评估占比%</span>
-                            <input type="number" id="global-w-ass" min="0" max="100" required class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500">期末占比%</span>
-                            <input type="number" id="global-w-exam" min="0" max="100" required class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
+            <!-- 模块 1：Google 账号登录状态管理 -->
+            <div class="mb-5 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">云端同步账号</div>
+                <div id="modal-auth-logged-out" class="flex items-center justify-between">
+                    <span class="text-xs text-slate-500">未登录（仅保存在本地）</span>
+                    <button onclick="loginWithGoogle()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.99 0 12s.46 3.83 1.26 5.42l4.02-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                        <span>使用 Google 登录同步</span>
+                    </button>
+                </div>
+                <div id="modal-auth-logged-in" class="hidden flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <img id="modal-user-avatar" class="w-8 h-8 rounded-full border border-slate-200" src="" alt="Avatar">
+                        <div class="flex flex-col">
+                            <span id="modal-user-name" class="text-xs font-bold text-slate-800">已登录账号</span>
+                            <span class="text-[10px] text-emerald-600 font-medium">✓ 跨设备实时同步已开启</span>
                         </div>
                     </div>
-                    <div id="global-weight-sum-bar" class="mt-2 p-2 rounded-lg text-xs flex justify-between items-center bg-slate-100 text-slate-700">
-                        <span>当前权重总和：</span>
-                        <span id="global-weight-sum-val" class="font-bold">100%</span>
+                    <button onclick="logoutGoogle()" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors font-medium">退出登录</button>
+                </div>
+            </div>
+
+            <!-- 模块 2：默认权重设置表单 -->
+            <form id="settings-form" class="space-y-4">
+                <div>
+                    <label for="global-weight-select" class="block text-xs font-semibold text-slate-600 uppercase mb-1">系统默认得分权重占比</label>
+                    
+                    <!-- 预设权重下拉菜单 -->
+                    <select id="global-weight-select" onchange="onGlobalWeightSelectChange(this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        <option value="30/30/40">常规比例：课业 30% / 评估 30% / 期末考 40%</option>
+                        <option value="20/30/50">偏期末重：课业 20% / 评估 30% / 期末考 50%</option>
+                        <option value="50/0/50">无评估型：课业 50% / 评估 0% / 期末考 50%</option>
+                        <option value="0/0/100">纯期末考：课业 0% / 评估 0% / 期末考 100%</option>
+                        <option value="custom">自定义占比模式...</option>
+                    </select>
+
+                    <!-- 当选择“自定义占比模式”时展开此输入框区 -->
+                    <div id="custom-weight-inputs" class="hidden mt-3 pt-3 border-t border-dashed border-slate-200">
+                        <span class="text-[11px] text-indigo-600 font-semibold block mb-1">请输入自定义权重 (%)：</span>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <span class="text-[11px] text-slate-500">课业占比%</span>
+                                <input type="number" id="global-w-cw" min="0" max="100" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-500">评估占比%</span>
+                                <input type="number" id="global-w-ass" min="0" max="100" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-500">期末占比%</span>
+                                <input type="number" id="global-w-exam" min="0" max="100" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm mt-0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="global-weight-sum-bar" class="mt-2.5 p-2 rounded-lg text-xs flex justify-between items-center bg-slate-100 text-slate-700">
+                        <span>生效默认权重：</span>
+                        <span id="global-weight-sum-val" class="font-bold text-indigo-600">30 / 30 / 40</span>
                     </div>
                 </div>
 
@@ -198,22 +235,10 @@
                     </nav>
 
                     <!-- Settings Gear Icon -->
-                    <button onclick="openSettingsModal()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition-colors" title="系统设置与默认权重">
+                    <button onclick="openSettingsModal()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition-colors relative" title="系统设置与默认权重">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span id="nav-sync-indicator" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500"></span>
                     </button>
-
-                    <!-- Google Auth Container -->
-                    <div id="auth-container" class="flex items-center gap-2">
-                        <button id="btn-login" onclick="loginWithGoogle()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold shadow-sm transition-colors">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.99 0 12s.46 3.83 1.26 5.42l4.02-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                            <span>Google 登录</span>
-                        </button>
-                        
-                        <div id="user-profile" class="hidden flex items-center gap-2">
-                            <img id="user-avatar" class="w-8 h-8 rounded-full border border-slate-200" src="" alt="Avatar">
-                            <button onclick="logoutGoogle()" class="text-xs text-slate-500 hover:text-rose-600 underline">退出</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -955,16 +980,45 @@
             });
         }
 
+        // --- SETTINGS MODAL & WEIGHT DROPDOWN LOGIC ---
+
         function openSettingsModal() {
+            // 设置默认权重的下拉选项展示
+            const currentStr = `${DEFAULT_WEIGHTS.cw}/${DEFAULT_WEIGHTS.ass}/${DEFAULT_WEIGHTS.exam}`;
+            const selectEl = document.getElementById('global-weight-select');
+            
+            // 检查当前权重是否在预设选项中
+            const presetExists = Array.from(selectEl.options).some(opt => opt.value === currentStr);
+            if (presetExists) {
+                selectEl.value = currentStr;
+            } else {
+                selectEl.value = 'custom';
+            }
+            
             document.getElementById('global-w-cw').value = DEFAULT_WEIGHTS.cw;
             document.getElementById('global-w-ass').value = DEFAULT_WEIGHTS.ass;
             document.getElementById('global-w-exam').value = DEFAULT_WEIGHTS.exam;
-            validateGlobalWeightSum();
+
+            onGlobalWeightSelectChange(selectEl.value);
             document.getElementById('settings-modal').classList.remove('hidden');
         }
 
         function closeSettingsModal() {
             document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function onGlobalWeightSelectChange(val) {
+            const customDiv = document.getElementById('custom-weight-inputs');
+            if (val === 'custom') {
+                customDiv.classList.remove('hidden');
+            } else {
+                customDiv.classList.add('hidden');
+                const [cw, ass, exam] = val.split('/').map(Number);
+                document.getElementById('global-w-cw').value = cw;
+                document.getElementById('global-w-ass').value = ass;
+                document.getElementById('global-w-exam').value = exam;
+            }
+            validateGlobalWeightSum();
         }
 
         function validateGlobalWeightSum() {
@@ -975,12 +1029,12 @@
 
             const sumValSpan = document.getElementById('global-weight-sum-val');
             const sumBar = document.getElementById('global-weight-sum-bar');
-            sumValSpan.innerText = `${sum}%`;
+            sumValSpan.innerText = `${cw} / ${ass} / ${exam} (和: ${sum}%)`;
 
             if (sum === 100) {
-                sumBar.className = "mt-2 p-2 rounded-lg text-xs flex justify-between items-center bg-emerald-50 text-emerald-800 border border-emerald-200";
+                sumBar.className = "mt-2.5 p-2 rounded-lg text-xs flex justify-between items-center bg-emerald-50 text-emerald-800 border border-emerald-200";
             } else {
-                sumBar.className = "mt-2 p-2 rounded-lg text-xs flex justify-between items-center bg-amber-50 text-amber-800 border border-amber-200";
+                sumBar.className = "mt-2.5 p-2 rounded-lg text-xs flex justify-between items-center bg-amber-50 text-amber-800 border border-amber-200";
             }
             return sum === 100;
         }
@@ -1282,7 +1336,7 @@
                 saveState();
                 renderTable();
                 closeSettingsModal();
-                showToast("全局默认设置更新成功！", "success");
+                showToast("系统设置更新成功！", "success");
             };
 
             ['edit-w-cw', 'edit-w-ass', 'edit-w-exam'].forEach(id => {
@@ -1337,16 +1391,15 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-        // 已提取你截图中真实的 Firebase 配置信息
+        // 请填入您从 Firebase Console 复制的真实参数
         const firebaseConfig = {
-  apiKey: "AIzaSyAnZ40kpu52ij6NNsYq-qUNHMrgVVevWtI",
-  authDomain: "acacemic-result.firebaseapp.com",
-  projectId: "acacemic-result",
-  storageBucket: "acacemic-result.firebasestorage.app",
-  messagingSenderId: "290269584834",
-  appId: "1:290269584834:web:096482403468f528bcca5b",
-  measurementId: "G-6K0LSZ8FZX"
-};
+            apiKey: "AIzaSyBi7o...",
+            authDomain: "academic-result.firebaseapp.com",
+            projectId: "academic-result",
+            storageBucket: "academic-result.firebasestorage.app",
+            messagingSenderId: "338902097941",
+            appId: "1:338902097941:web:..."
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -1376,22 +1429,28 @@
             }
         };
 
+        // 更新弹窗与 Navbar 内的账号展示 UI
         onAuthStateChanged(auth, async (user) => {
-            const loginBtn = document.getElementById('btn-login');
-            const profileDiv = document.getElementById('user-profile');
-            const avatarImg = document.getElementById('user-avatar');
+            const loggedOutDiv = document.getElementById('modal-auth-logged-out');
+            const loggedInDiv = document.getElementById('modal-auth-logged-in');
+            const avatarImg = document.getElementById('modal-user-avatar');
+            const userNameSpan = document.getElementById('modal-user-name');
+            const syncIndicator = document.getElementById('nav-sync-indicator');
 
             if (user) {
                 currentUser = user;
-                loginBtn.classList.add('hidden');
-                profileDiv.classList.remove('hidden');
+                loggedOutDiv.classList.add('hidden');
+                loggedInDiv.classList.remove('hidden');
                 avatarImg.src = user.photoURL || '';
+                userNameSpan.innerText = user.displayName || user.email || '已登录账号';
+                syncIndicator.classList.remove('hidden'); // 设置图标右上角显示小红/绿点标识
 
                 listenToCloudData(user.uid);
             } else {
                 currentUser = null;
-                loginBtn.classList.remove('hidden');
-                profileDiv.classList.add('hidden');
+                loggedOutDiv.classList.remove('hidden');
+                loggedInDiv.classList.add('hidden');
+                syncIndicator.classList.add('hidden');
                 if (unsubscribeSync) unsubscribeSync();
                 
                 loadState();

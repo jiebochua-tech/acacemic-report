@@ -73,7 +73,7 @@
                 </div>
             </div>
 
-            <!-- 模块 2：系统默认权重设置表单（支持下拉展开/收起输入空格） -->
+            <!-- 模块 2：系统默认权重设置表单（移入勾选项至下拉框内） -->
             <form id="settings-form" class="space-y-4">
                 <div class="border border-slate-200 rounded-xl overflow-hidden">
                     <!-- 下拉控制标题按钮 -->
@@ -88,7 +88,7 @@
                         </div>
                     </button>
 
-                    <!-- 按下后才真正展开拉出修改得分占比的空格 -->
+                    <!-- 下拉展开区域：包含权重输入框及覆盖现有学科勾选项 -->
                     <div id="weight-collapse-content" class="hidden p-3.5 bg-white border-t border-slate-200 space-y-3">
                         <p class="text-[11px] text-slate-400">修改后新建的学科将默认采用此权重比例：</p>
                         <div class="grid grid-cols-3 gap-3">
@@ -109,14 +109,15 @@
                             <span>当前权重总和：</span>
                             <span id="global-weight-sum-val" class="font-bold">100%</span>
                         </div>
-                    </div>
-                </div>
 
-                <div class="pt-2 border-t border-slate-100">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="apply-to-existing-subjects" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                        <span class="text-xs text-slate-600">同时将此默认权重覆盖应用到现有所有学科</span>
-                    </label>
+                        <!-- 移入下拉选项内部的勾选框 -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="apply-to-existing-subjects" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                                <span class="text-xs text-slate-600">同时将此默认权重覆盖应用到现有所有学科</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -207,29 +208,29 @@
         </div>
     </div>
 
-    <!-- Navbar -->
+    <!-- Navbar 解决移动端溢出问题 -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center gap-2">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center gap-1 sm:gap-2">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     </div>
-                    <div>
-                        <h1 class="font-bold text-slate-800 text-base sm:text-xl leading-tight">学业成绩评估与分析系统</h1>
+                    <div class="min-w-0">
+                        <h1 class="font-bold text-slate-800 text-sm sm:text-xl truncate leading-tight">学业成绩评估系统</h1>
                         <p class="text-xs text-slate-500 hidden sm:block">多年级学点积分 & 双学期平均分管理系统</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <!-- Main Navigation Tabs -->
+                <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                    <!-- Main Navigation Tabs - 移动端优化防止换行溢出 -->
                     <nav class="flex space-x-1 bg-slate-100 p-1 rounded-xl">
-                        <button id="nav-btn-table" onclick="switchPage('table')" class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 bg-white text-indigo-600 shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <button id="nav-btn-table" onclick="switchPage('table')" class="flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 bg-white text-indigo-600 shadow-sm whitespace-nowrap">
+                            <svg class="w-4 h-4 hidden sm:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>成绩表格</span>
                         </button>
-                        <button id="nav-btn-analytics" onclick="switchPage('analytics')" class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                        <button id="nav-btn-analytics" onclick="switchPage('analytics')" class="flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap">
+                            <svg class="w-4 h-4 hidden sm:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                             <span>数据图表</span>
                         </button>
                     </nav>
@@ -810,13 +811,13 @@
             if (page === 'table') {
                 tablePage.classList.remove('hidden');
                 analyticsPage.classList.add('hidden');
-                btnTable.className = "flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-indigo-600 shadow-sm";
-                btnAnalytics.className = "flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900";
+                btnTable.className = "flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 bg-white text-indigo-600 shadow-sm whitespace-nowrap";
+                btnAnalytics.className = "flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap";
             } else {
                 tablePage.classList.add('hidden');
                 analyticsPage.classList.remove('hidden');
-                btnAnalytics.className = "flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-indigo-600 shadow-sm";
-                btnTable.className = "flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900";
+                btnAnalytics.className = "flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 bg-white text-indigo-600 shadow-sm whitespace-nowrap";
+                btnTable.className = "flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 text-slate-600 hover:text-slate-900 whitespace-nowrap";
                 
                 document.getElementById('chart-filter-grade').value = state.activeGrade || 'all';
                 populateSubjectFilterDropdown();
@@ -1379,16 +1380,16 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-        // 请填入您从 Firebase Console 复制的真实参数
+        // 已配置正确的真实 Firebase 信息
         const firebaseConfig = {
-  apiKey: "AIzaSyAnZ40kpu52ij6NNsYq-qUNHMrgVVevWtI",
-  authDomain: "acacemic-result.firebaseapp.com",
-  projectId: "acacemic-result",
-  storageBucket: "acacemic-result.firebasestorage.app",
-  messagingSenderId: "290269584834",
-  appId: "1:290269584834:web:096482403468f528bcca5b",
-  measurementId: "G-6K0LSZ8FZX"
-};
+            apiKey: "AIzaSyAnZ40kpu52ij6NNsYq-qUNHMrgVVevWtI",
+            authDomain: "acacemic-result.firebaseapp.com",
+            projectId: "acacemic-result",
+            storageBucket: "acacemic-result.firebasestorage.app",
+            messagingSenderId: "290269584834",
+            appId: "1:290269584834:web:096482403468f528bcca5b",
+            measurementId: "G-6K0LSZ8FZX"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);

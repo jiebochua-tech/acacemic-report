@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <!-- Subject Edit Modal (包含最新的权重占比开关勾选项) -->
+    <!-- Subject Edit Modal (包含“最后得分”输入栏与联动开关) -->
     <div id="subject-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center mb-4">
@@ -194,6 +194,12 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">学点 (学分)</label>
                     <input type="number" id="edit-credits" step="0.5" min="0" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                </div>
+
+                <!-- 新增：最后得分输入栏（未勾选按权重计算时可用） -->
+                <div>
+                    <label class="block text-xs font-semibold text-indigo-600 uppercase mb-1">最后得分 (0-100 或 "-")</label>
+                    <input type="text" id="edit-final-score" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm font-bold text-slate-800" placeholder="0-100 或 -">
                 </div>
 
                 <hr class="border-slate-100 my-2">
@@ -379,7 +385,6 @@
                     </div>
 
                     <div class="flex items-center gap-1.5 border-l border-slate-200 pl-2">
-                        <!-- 收纳“导出备份”下拉菜单 -->
                         <div class="relative inline-block text-left">
                             <button onclick="toggleExportMenu()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -403,7 +408,6 @@
                             导入 JSON
                         </button>
 
-                        <!-- 新增学科主按钮 + “从已有学期导入”下拉菜单按钮 -->
                         <div class="relative inline-flex rounded-lg shadow-sm">
                             <button onclick="addNewSubject()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-l-lg transition-colors flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -600,20 +604,22 @@
             }
         }
 
-        // 修改计算得分逻辑：支持根据 isWeighted 开关选择是否按权重计算
+        // 修改得分计算逻辑：支持优先读取“最后得分”或自动按权重归一化计算
         function calculateSubjectScore(subject) {
-            // 未勾选按权重占比计算：直接计算已填入得分的简单平均值（或直接填入的分数）
+            // 未勾选按权重占比计算：优先使用用户在弹窗中手动输入的 finalScore
             if (subject.isWeighted === false) {
+                if (!isDashVal(subject.finalScore)) {
+                    return Math.round(Number(subject.finalScore));
+                }
                 let scores = [];
                 if (!isDashVal(subject.coursework)) scores.push(Number(subject.coursework));
                 if (!isDashVal(subject.assessment)) scores.push(Number(subject.assessment));
                 if (!isDashVal(subject.exam)) scores.push(Number(subject.exam));
                 if (scores.length === 0) return null;
-                const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-                return Math.round(avg);
+                return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
             }
 
-            // 已勾选（默认按权重占比计算）
+            // 已勾选按权重计算
             const w = subject.weights || DEFAULT_WEIGHTS;
             let totalWeightedScore = 0;
             let activeWeightSum = 0;
@@ -740,7 +746,7 @@
 
         function exportJSON() {
             const backupObj = {
-                version: "3.6",
+                version: "3.7",
                 exportTime: new Date().toLocaleString(),
                 globalWeights: DEFAULT_WEIGHTS,
                 gradesList: state.gradesList,
@@ -1091,11 +1097,12 @@
                 semester: state.activeSemester,
                 name: `新学科 ${count}`,
                 credits: 3,
+                finalScore: '-',
                 coursework: 80,
                 assessment: 80,
                 exam: 80,
                 starred: false,
-                isWeighted: true, // 默认开启按权重计算
+                isWeighted: true,
                 weights: { ...DEFAULT_WEIGHTS }
             };
             state.subjects.push(newSubject);
@@ -1238,11 +1245,21 @@
             return sum === 100;
         }
 
-        // 根据权重占比开关动态禁用/启用弹窗内权重输入框
+        // 根据权重占比开关，动态禁用/启用“最后得分”与“权重占比”输入框
         function toggleWeightedStateInModal() {
             const isWeighted = document.getElementById('edit-is-weighted').checked;
+            const finalScoreInput = document.getElementById('edit-final-score');
             const wInputs = ['edit-w-cw', 'edit-w-ass', 'edit-w-exam'];
             
+            finalScoreInput.disabled = isWeighted;
+            if (isWeighted) {
+                finalScoreInput.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed');
+                finalScoreInput.placeholder = "已开启权重占比，系统将自动计算";
+            } else {
+                finalScoreInput.classList.remove('bg-slate-100', 'text-slate-400', 'cursor-not-allowed');
+                finalScoreInput.placeholder = "0-100 或 -";
+            }
+
             wInputs.forEach(id => {
                 const input = document.getElementById(id);
                 input.disabled = !isWeighted;
@@ -1270,10 +1287,10 @@
             document.getElementById('edit-name').value = subject.name;
             document.getElementById('edit-credits').value = subject.credits;
             
-            // 设置根据权重计算勾选项（默认为 true）
             const isWeighted = subject.isWeighted !== undefined ? subject.isWeighted : true;
             document.getElementById('edit-is-weighted').checked = isWeighted;
 
+            document.getElementById('edit-final-score').value = isDashVal(subject.finalScore) ? '-' : subject.finalScore;
             document.getElementById('edit-cw').value = isDashVal(subject.coursework) ? '-' : subject.coursework;
             document.getElementById('edit-ass').value = isDashVal(subject.assessment) ? '-' : subject.assessment;
             document.getElementById('edit-exam').value = isDashVal(subject.exam) ? '-' : subject.exam;
@@ -1559,6 +1576,7 @@
                             semester: state.activeSemester,
                             name: sourceSub.name,
                             credits: sourceSub.credits,
+                            finalScore: '-',
                             coursework: '-',
                             assessment: '-',
                             exam: '-',
@@ -1614,9 +1632,15 @@
                 
                 const isWeighted = document.getElementById('edit-is-weighted').checked;
 
+                const parsedFinal = parseScoreInput(document.getElementById('edit-final-score').value);
                 const parsedCw = parseScoreInput(document.getElementById('edit-cw').value);
                 const parsedAss = parseScoreInput(document.getElementById('edit-ass').value);
                 const parsedExam = parseScoreInput(document.getElementById('edit-exam').value);
+
+                if (!isWeighted && parsedFinal === null) {
+                    showToast("最后得分请输入 0-100 的有效数字或无成绩符号 '-'", "warning");
+                    return;
+                }
 
                 if (parsedCw === null || parsedAss === null || parsedExam === null) {
                     showToast("成绩请输入 0-100 的有效数字或无成绩符号 '-'", "warning");
@@ -1635,6 +1659,7 @@
                     subject.credits = parseFloat(document.getElementById('edit-credits').value) || 0;
                     subject.isWeighted = isWeighted;
                     
+                    subject.finalScore = parsedFinal;
                     subject.coursework = parsedCw;
                     subject.assessment = parsedAss;
                     subject.exam = parsedExam;

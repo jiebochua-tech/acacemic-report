@@ -1,3 +1,6 @@
+[!CAUTION]
+这仓库不公开，暂时还没完成！This repository is not for public!
+
 # 📚 学业成绩评估与分析系统 (Grade Management System)
 
 一个基于纯前端（HTML + JavaScript + Tailwind CSS）构建的高颜值、多功能学业成绩与学点积分管理系统。支持多年级、双学期成绩跟踪，具备灵活的加权算分机制、交互式可视化图表以及 Google / Firebase 云端跨设备实时同步。

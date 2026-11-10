@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <!-- 最新改进：从已有学期导入学科弹窗 -->
+    <!-- 从已有学期导入学科弹窗 -->
     <div id="import-subjects-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center mb-4">
@@ -55,7 +55,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">选择目标来源（年级与学期）：</label>
                     <select id="import-source-select" onchange="renderImportSubjectsList()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-semibold bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <!-- JS 动态渲染可用源学期选项 -->
                     </select>
                 </div>
 
@@ -66,7 +65,6 @@
                     </div>
                     
                     <div id="import-subjects-list" class="max-h-52 overflow-y-auto custom-scrollbar space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                        <!-- JS 动态渲染可勾选学科列表 -->
                     </div>
                 </div>
 
@@ -82,7 +80,7 @@
         </div>
     </div>
 
-    <!-- Global Settings Modal (系统设置与全局权重) -->
+    <!-- Global Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center mb-4">
@@ -95,7 +93,6 @@
                 </button>
             </div>
             
-            <!-- Google 账号登录区 -->
             <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
                 <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">云端同步账号</div>
                 <div id="modal-auth-logged-out" class="flex items-center justify-between">
@@ -117,7 +114,6 @@
                 </div>
             </div>
 
-            <!-- 系统默认权重设置 -->
             <form id="settings-form" class="space-y-4">
                 <div class="border border-slate-200 rounded-xl overflow-hidden">
                     <button type="button" onclick="toggleWeightCollapse()" class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors">
@@ -169,7 +165,7 @@
         </div>
     </div>
 
-    <!-- Subject Edit Modal -->
+    <!-- Subject Edit Modal (包含最新的权重占比开关勾选项) -->
     <div id="subject-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center mb-4">
@@ -182,6 +178,14 @@
             <form id="subject-form" class="space-y-4">
                 <input type="hidden" id="edit-subject-id">
                 
+                <!-- 根据权重占比计算得分勾选项 -->
+                <div class="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl mb-3">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="edit-is-weighted" onchange="toggleWeightedStateInModal()" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                        <span class="text-xs font-semibold text-slate-700">根据权重占比计算得分</span>
+                    </label>
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">学科名称</label>
                     <input type="text" id="edit-name" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
@@ -596,7 +600,20 @@
             }
         }
 
+        // 修改计算得分逻辑：支持根据 isWeighted 开关选择是否按权重计算
         function calculateSubjectScore(subject) {
+            // 未勾选按权重占比计算：直接计算已填入得分的简单平均值（或直接填入的分数）
+            if (subject.isWeighted === false) {
+                let scores = [];
+                if (!isDashVal(subject.coursework)) scores.push(Number(subject.coursework));
+                if (!isDashVal(subject.assessment)) scores.push(Number(subject.assessment));
+                if (!isDashVal(subject.exam)) scores.push(Number(subject.exam));
+                if (scores.length === 0) return null;
+                const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+                return Math.round(avg);
+            }
+
+            // 已勾选（默认按权重占比计算）
             const w = subject.weights || DEFAULT_WEIGHTS;
             let totalWeightedScore = 0;
             let activeWeightSum = 0;
@@ -689,7 +706,6 @@
             });
         }
 
-        // --- 导出菜单 UI 控制 ---
         function toggleExportMenu() {
             const menu = document.getElementById('export-dropdown-menu');
             menu.classList.toggle('hidden');
@@ -699,7 +715,6 @@
             document.getElementById('export-dropdown-menu').classList.add('hidden');
         }
 
-        // --- 新增学科下拉选项 UI 控制 ---
         function toggleAddSubjectDropdown() {
             const menu = document.getElementById('add-subject-dropdown-menu');
             menu.classList.toggle('hidden');
@@ -709,7 +724,6 @@
             document.getElementById('add-subject-dropdown-menu').classList.add('hidden');
         }
 
-        // 点击空白收起下拉菜单
         document.addEventListener('click', (e) => {
             const exportMenu = document.getElementById('export-dropdown-menu');
             const exportBtn = e.target.closest('button[onclick="toggleExportMenu()"]');
@@ -726,7 +740,7 @@
 
         function exportJSON() {
             const backupObj = {
-                version: "3.5",
+                version: "3.6",
                 exportTime: new Date().toLocaleString(),
                 globalWeights: DEFAULT_WEIGHTS,
                 gradesList: state.gradesList,
@@ -961,7 +975,6 @@
             document.getElementById('card-total-points').innerText = `总积分: ${totalPointsSum.toFixed(1)}`;
         }
 
-        // --- 标星逻辑（浅蓝色高亮） ---
         function toggleStarSubject(id) {
             const subject = state.subjects.find(s => s.id === id);
             if (subject) {
@@ -1082,6 +1095,7 @@
                 assessment: 80,
                 exam: 80,
                 starred: false,
+                isWeighted: true, // 默认开启按权重计算
                 weights: { ...DEFAULT_WEIGHTS }
             };
             state.subjects.push(newSubject);
@@ -1090,7 +1104,6 @@
             openSubjectModal(newId);
         }
 
-        // --- 最新功能：“从已有学期导入学科”弹窗与数据处理 ---
         function openImportSubjectsModal() {
             if (!state.activeGrade) {
                 showToast("请先创建或选择一个年级", "warning");
@@ -1100,7 +1113,6 @@
             const sourceSelect = document.getElementById('import-source-select');
             sourceSelect.innerHTML = '';
 
-            // 收集当前可用源学期（排除当前正在查看的学期）
             let availableSources = [];
             state.gradesList.forEach(g => {
                 [1, 2].forEach(sem => {
@@ -1181,7 +1193,7 @@
             });
         }
 
-        // --- SETTINGS MODAL LOGIC ---
+        // --- SETTINGS MODAL & WEIGHT DROPDOWN LOGIC ---
         function toggleWeightCollapse() {
             const content = document.getElementById('weight-collapse-content');
             const arrow = document.getElementById('weight-arrow-icon');
@@ -1226,6 +1238,30 @@
             return sum === 100;
         }
 
+        // 根据权重占比开关动态禁用/启用弹窗内权重输入框
+        function toggleWeightedStateInModal() {
+            const isWeighted = document.getElementById('edit-is-weighted').checked;
+            const wInputs = ['edit-w-cw', 'edit-w-ass', 'edit-w-exam'];
+            
+            wInputs.forEach(id => {
+                const input = document.getElementById(id);
+                input.disabled = !isWeighted;
+                if (!isWeighted) {
+                    input.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed');
+                } else {
+                    input.classList.remove('bg-slate-100', 'text-slate-400', 'cursor-not-allowed');
+                }
+            });
+
+            const sumBar = document.getElementById('weight-sum-bar');
+            if (!isWeighted) {
+                sumBar.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                sumBar.classList.remove('opacity-40', 'pointer-events-none');
+                validateWeightSumModal();
+            }
+        }
+
         function openSubjectModal(subjectId) {
             const subject = state.subjects.find(s => s.id === subjectId);
             if (!subject) return;
@@ -1234,6 +1270,10 @@
             document.getElementById('edit-name').value = subject.name;
             document.getElementById('edit-credits').value = subject.credits;
             
+            // 设置根据权重计算勾选项（默认为 true）
+            const isWeighted = subject.isWeighted !== undefined ? subject.isWeighted : true;
+            document.getElementById('edit-is-weighted').checked = isWeighted;
+
             document.getElementById('edit-cw').value = isDashVal(subject.coursework) ? '-' : subject.coursework;
             document.getElementById('edit-ass').value = isDashVal(subject.assessment) ? '-' : subject.assessment;
             document.getElementById('edit-exam').value = isDashVal(subject.exam) ? '-' : subject.exam;
@@ -1243,7 +1283,7 @@
             document.getElementById('edit-w-ass').value = w.ass;
             document.getElementById('edit-w-exam').value = w.exam;
 
-            validateWeightSumModal();
+            toggleWeightedStateInModal();
             document.getElementById('subject-modal').classList.remove('hidden');
         }
 
@@ -1497,7 +1537,6 @@
                 pendingConfirmAction = null;
             };
 
-            // 导入勾选学科提交逻辑
             document.getElementById('import-subjects-form').onsubmit = (e) => {
                 e.preventDefault();
                 const checkedBoxes = document.querySelectorAll('input[name="import-sub-item"]:checked');
@@ -1524,6 +1563,7 @@
                             assessment: '-',
                             exam: '-',
                             starred: false,
+                            isWeighted: sourceSub.isWeighted !== undefined ? sourceSub.isWeighted : true,
                             weights: sourceSub.weights ? { ...sourceSub.weights } : { ...DEFAULT_WEIGHTS }
                         });
                         importedCount++;
@@ -1572,6 +1612,8 @@
             document.getElementById('subject-form').onsubmit = (e) => {
                 e.preventDefault();
                 
+                const isWeighted = document.getElementById('edit-is-weighted').checked;
+
                 const parsedCw = parseScoreInput(document.getElementById('edit-cw').value);
                 const parsedAss = parseScoreInput(document.getElementById('edit-ass').value);
                 const parsedExam = parseScoreInput(document.getElementById('edit-exam').value);
@@ -1581,7 +1623,7 @@
                     return;
                 }
 
-                if (!validateWeightSumModal()) {
+                if (isWeighted && !validateWeightSumModal()) {
                     showToast("三种权重占比之和必须等于 100%", "warning");
                     return;
                 }
@@ -1591,6 +1633,7 @@
                 if (subject) {
                     subject.name = document.getElementById('edit-name').value.trim();
                     subject.credits = parseFloat(document.getElementById('edit-credits').value) || 0;
+                    subject.isWeighted = isWeighted;
                     
                     subject.coursework = parsedCw;
                     subject.assessment = parsedAss;
@@ -1611,7 +1654,7 @@
         };
     </script>
 
-    <!-- Firebase Authentication & Firestore Cloud Sync Module -->
+    <!-- Firebase Cloud Sync Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";

@@ -93,24 +93,37 @@
                 </button>
             </div>
             
-            <div class="mb-4 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">云端同步账号</div>
-                <div id="modal-auth-logged-out" class="flex items-center justify-between">
-                    <span class="text-xs text-slate-500">未登录（数据仅保存在本地）</span>
-                    <button onclick="loginWithGoogle()" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-semibold shadow-sm transition-colors">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.99 0 12s.46 3.83 1.26 5.42l4.02-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                        <span>使用 Google 登录</span>
+            <!-- 账号登入卡片 -->
+            <div class="mb-4 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/90 space-y-3">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                    账号登入
+                </label>
+
+                <!-- 未登入状态 -->
+                <div id="logged-out-view">
+                    <button id="login-btn" type="button" onclick="loginWithGoogle(); closeSettingsModal()" class="w-full bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm flex items-center justify-center gap-2.5 transition-all">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <span>登入</span>
                     </button>
                 </div>
-                <div id="modal-auth-logged-in" class="hidden flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <img id="modal-user-avatar" class="w-8 h-8 rounded-full border border-slate-200" src="" alt="Avatar">
-                        <div class="flex flex-col">
-                            <span id="modal-user-name" class="text-xs font-bold text-slate-800">已登录账号</span>
-                            <span class="text-[10px] text-emerald-600 font-medium">✓ 跨设备实时同步已开启</span>
-                        </div>
+
+                <!-- 已登入状态 -->
+                <div id="logged-in-view" class="hidden flex items-center gap-3.5 pt-0.5">
+                    <!-- 左侧头像容器（支持 Google 头像与默认人像 SVG 兜底） -->
+                    <div class="w-14 h-14 rounded-full bg-orange-50 border-2 border-orange-500/80 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                        <img id="user-avatar-img" src="" alt="用户头像" referrerpolicy="no-referrer" class="w-full h-full object-cover hidden">
+                        <svg id="user-avatar-fallback" class="w-7 h-7 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                    <button onclick="logoutGoogle()" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors font-medium">退出登录</button>
+
+                    <!-- 右侧用户名与登出按钮 -->
+                    <div class="flex-1 min-w-0 flex flex-col gap-2">
+                        <div id="user-info" class="text-sm font-bold text-slate-800 truncate px-1" title=""></div>
+                        <button id="logout-btn" type="button" onclick="logoutGoogle(); closeSettingsModal()" class="w-full bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            登出
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1726,10 +1739,11 @@
         };
 
         onAuthStateChanged(auth, async (user) => {
-            const loggedOutDiv = document.getElementById('modal-auth-logged-out');
-            const loggedInDiv = document.getElementById('modal-auth-logged-in');
-            const avatarImg = document.getElementById('modal-user-avatar');
-            const userNameSpan = document.getElementById('modal-user-name');
+            const loggedOutDiv = document.getElementById('logged-out-view');
+            const loggedInDiv = document.getElementById('logged-in-view');
+            const avatarImg = document.getElementById('user-avatar-img');
+            const avatarFallback = document.getElementById('user-avatar-fallback');
+            const userInfoEl = document.getElementById('user-info');
             const syncIndicator = document.getElementById('nav-sync-indicator');
             const headerSyncText = document.getElementById('header-sync-text');
 
@@ -1737,8 +1751,27 @@
                 currentUser = user;
                 loggedOutDiv.classList.add('hidden');
                 loggedInDiv.classList.remove('hidden');
-                avatarImg.src = user.photoURL || '';
-                userNameSpan.innerText = user.displayName || user.email || '已登录账号';
+
+                const displayName = user.displayName || user.email || '已登录账号';
+                userInfoEl.innerText = displayName;
+                userInfoEl.title = user.email ? `${displayName} (${user.email})` : displayName;
+
+                if (user.photoURL) {
+                    avatarImg.onload = () => {
+                        avatarImg.classList.remove('hidden');
+                        avatarFallback.classList.add('hidden');
+                    };
+                    avatarImg.onerror = () => {
+                        avatarImg.classList.add('hidden');
+                        avatarFallback.classList.remove('hidden');
+                    };
+                    avatarImg.src = user.photoURL;
+                } else {
+                    avatarImg.src = '';
+                    avatarImg.classList.add('hidden');
+                    avatarFallback.classList.remove('hidden');
+                }
+
                 syncIndicator.classList.remove('hidden');
                 if (headerSyncText) headerSyncText.innerText = `✓ 云端实时同步 (${user.email})`;
 
@@ -1747,6 +1780,10 @@
                 currentUser = null;
                 loggedOutDiv.classList.remove('hidden');
                 loggedInDiv.classList.add('hidden');
+                avatarImg.src = '';
+                avatarImg.classList.add('hidden');
+                avatarFallback.classList.remove('hidden');
+
                 syncIndicator.classList.add('hidden');
                 if (headerSyncText) headerSyncText.innerText = '本地离线保存模式';
                 if (unsubscribeSync) unsubscribeSync();

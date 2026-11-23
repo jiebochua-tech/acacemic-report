@@ -297,14 +297,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- 右上角云端同步状态与实时时钟 -->
-                <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 text-xs text-teal-100 shrink-0">
-                    <div id="header-clock" class="font-mono font-medium bg-white/10 px-3 py-1.5 rounded-lg border border-white/15">
-                        当前时间: --/--/---- --:--:--
-                    </div>
-                    <span id="header-sync-text" class="text-[11px] text-teal-100/90">本地存储模式</span>
-                </div>
             </div>
         </div>
     </header>
@@ -588,14 +580,6 @@
 
         let mainBarChartInstance = null;
         let distributionPieChartInstance = null;
-
-        function updateHeaderClock() {
-            const el = document.getElementById('header-clock');
-            if (!el) return;
-            const now = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            el.innerText = `当前时间: ${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        }
 
         function isDashVal(val) {
             if (val === null || val === undefined) return true;
@@ -1553,9 +1537,6 @@
         }
 
         window.onload = function() {
-            updateHeaderClock();
-            setInterval(updateHeaderClock, 1000);
-
             loadState();
             renderTable();
 
@@ -1745,7 +1726,6 @@
             const avatarFallback = document.getElementById('user-avatar-fallback');
             const userInfoEl = document.getElementById('user-info');
             const syncIndicator = document.getElementById('nav-sync-indicator');
-            const headerSyncText = document.getElementById('header-sync-text');
 
             if (user) {
                 currentUser = user;
@@ -1773,7 +1753,6 @@
                 }
 
                 syncIndicator.classList.remove('hidden');
-                if (headerSyncText) headerSyncText.innerText = `✓ 云端实时同步 (${user.email})`;
 
                 listenToCloudData(user.uid);
             } else {
@@ -1785,7 +1764,6 @@
                 avatarFallback.classList.remove('hidden');
 
                 syncIndicator.classList.add('hidden');
-                if (headerSyncText) headerSyncText.innerText = '本地离线保存模式';
                 if (unsubscribeSync) unsubscribeSync();
                 
                 loadState();
